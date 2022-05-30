@@ -1,0 +1,44 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cs.springboot_jsp_shiro.mappers.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.cs.springboot_jsp_shiro.entity.User" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <id column="user_name" property="userName" jdbcType="VARCHAR" />
+        <id column="pass_word" property="passWord" jdbcType="VARCHAR" />
+        <id column="salt" property="salt" jdbcType="VARCHAR" />
+        <collection property="roleList" javaType="list" ofType="Role">
+            <id column="id" property="id" />
+            <id column="role" property="role" />
+        </collection>
+    </resultMap>
+
+
+    <resultMap id="BaseResultMap2" type="com.cs.springboot_jsp_shiro.entity.User" >
+        <id column="uid" property="id" jdbcType="BIGINT" />
+        <id column="user_name" property="userName" jdbcType="VARCHAR" />
+        <id column="salt" property="salt" jdbcType="VARCHAR" />
+        <collection property="roleList" javaType="list" ofType="Role">
+            <id column="id" property="id" />
+            <id column="role" property="role" />
+        </collection>
+    </resultMap>
+    <insert id="save" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user values (#{id},#{userName},#{passWord},#{salt})
+    </insert>
+    <select id="findByUserName" parameterType="User" resultMap="BaseResultMap">
+        select id,user_name,pass_word,salt from t_user where user_name = #{userName,jdbcType=VARCHAR}
+    </select>
+    <select id="queryByRoleListUserName" parameterType="String" resultMap="BaseResultMap2">
+        SELECT u.id as uid,u.user_name,r.id,r.role
+        from t_user AS u
+        LEFT JOIN t_user_role ur ON u.id = ur.user_id
+        LEFT JOIN t_role AS r ON ur.role_id = r.id
+        WHERE u.user_name = #{userName,jdbcType=VARCHAR}
+    </select>
+    <select id="queryPermsByRoleId" resultType="com.cs.springboot_jsp_shiro.entity.Perms">
+        SELECT p.id,p.name,p.url,r.id from t_role as  r
+        LEFT JOIN t_role_perms AS rp ON r.id = rp.role_id
+        LEFT JOIN t_perms AS p ON rp.perms_id = p.id
+        WHERE r.id = #{id,jdbcType=BIGINT}
+    </select>
+</mapper>
